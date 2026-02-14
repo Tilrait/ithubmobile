@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:repository_template/ui/screens/entrypoint.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello'))),
-    );
-  }
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const App());
 }
+
+
