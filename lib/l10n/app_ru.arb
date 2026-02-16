@@ -1,0 +1,7 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Главная",
+  "@appTitle": {
+    "description": "Заголовок главного экрана"
+  }
+}
