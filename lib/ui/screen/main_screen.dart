@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ithubmobile/gen/assets.gen.dart';
 import 'package:ithubmobile/generated/l10n/app_localizations.dart';
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,6 +16,9 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.appTitle),
+      ),
+      body: SingleChildScrollView(
+        child: Column(children: [Image.asset(Assets.images.img2891.path), Image.asset(Assets.images.images.path), Image.asset(Assets.images.img0776.path)]),
       ),
     );
   }

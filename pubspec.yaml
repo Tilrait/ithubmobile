@@ -36,8 +36,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  build_runner: ^2.11.0
   intl: ^0.20.2
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +49,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  build_runner: ^2.11.0
+  flutter_gen_runner: ^5.8.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -93,14 +96,37 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
   assets:
-    - lib/assets/fonts/
-    - lib/assets/l10n/
+    - assets/fonts/
+    - assets/l10n/
+    - assets/icon/
+    - assets/images/
+    - assets/AppLogo.jpg
   fonts:
     - family: RobotoMono
       fonts:
-        - asset: lib/assets/fonts/RobotoMono-Regular.ttf
+        - asset: assets/fonts/RobotoMono-Regular.ttf
           weight: 400
-        - asset: lib/assets/fonts/RobotoMono-Medium.ttf
+        - asset: assets/fonts/RobotoMono-Medium.ttf
           weight: 500
-        - asset: lib/assets/fonts/RobotoMono-Bold.ttf
+        - asset: assets/fonts/RobotoMono-Bold.ttf
           weight: 700
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/AppLogo.jpg"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/AppLogo.jpg"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/AppLogo.jpg"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/AppLogo.jpg"
+
+  
