@@ -9,5 +9,6 @@ void main() async {
   final path = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(path.path);
   await Hive.openBox<bool>('boxName');
+  await Hive.openBox('user');
   runApp(const MyApp());
 }

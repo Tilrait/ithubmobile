@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ithubmobile/gen/assets.gen.dart';
 import 'package:ithubmobile/generated/l10n/app_localizations.dart';
+import 'package:ithubmobile/ui/screen/profile/profile_screen.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(AppLocalizations.of(context)!.appTitle),
       ),
       body: SingleChildScrollView(
@@ -31,6 +33,18 @@ class _MainScreenState extends State<MainScreen> {
                   CupertinoSwitch(
                     value: _switchValue,
                     onChanged: (value) => setState(() => _switchValue = value),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Profile'),
                   ),
                 ],
               ),
