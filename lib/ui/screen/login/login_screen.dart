@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:ithubmobile/ui/screen/auth/auth_screen.dart';
 import 'package:ithubmobile/ui/screen/main_screen.dart';
@@ -14,6 +15,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
+  Future<void> _onLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -33,35 +35,58 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final box = Hive.box('user');
-    final rawCurrent = box.get('current');
-    final rawPassword = box.get('password');
-
-    if (rawCurrent == null || rawPassword == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Аккаунт не найден. Сначала зарегистрируйтесь'),
-        ),
+    setState(() => _isLoading = true);
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      return;
-    }
 
-    final json = Map<String, dynamic>.from(rawCurrent as Map);
-    final storedPassword = rawPassword.toString();
-
-    if (storedPassword != password) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Неверный пароль')),
+      final firebaseUser = credential.user;
+      if (firebaseUser != null) {
+        final user = UserModel(
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName ?? '',
+          email: firebaseUser.email ?? email,
+        );
+        await Hive.box('user').put('current', user.toJson());
+      }
+    } on FirebaseAuthException catch (e, st) {
+      debugPrint(
+        'Firebase login error: code=${e.code}, message=${e.message}, email=$email',
       );
+      debugPrintStack(stackTrace: st);
+      String message = 'Ошибка входа';
+      if (e.code == 'user-not-found') {
+        message = 'Пользователь не найден. Зарегистрируйтесь';
+      } else if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        message = 'Неверный email или пароль';
+      } else if (e.code == 'invalid-email') {
+        message = 'Некорректный email';
+      } else if (e.code == 'operation-not-allowed') {
+        message = 'В Firebase не включен вход по email/password';
+      } else if (e.message != null && e.message!.isNotEmpty) {
+        message = e.message!;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$message (${e.code})')),
+        );
+      }
       return;
-    }
-
-    final user = UserModel.fromJson(json);
-    if (user.email != email) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Неверный email')),
-      );
+    } catch (e, st) {
+      debugPrint('Unexpected login error: $e');
+      debugPrintStack(stackTrace: st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось выполнить вход')),
+        );
+      }
       return;
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
 
     if (mounted) {
@@ -98,8 +123,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _onLogin,
-                child: const Text('Login'),
+                onPressed: _isLoading ? null : _onLogin,
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Login'),
               ),
               const SizedBox(height: 12),
               TextButton(

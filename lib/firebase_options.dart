@@ -60,11 +60,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBwF3qt7qRLnS2On2gweYnZgMdLVRaVsgg',
-    appId: '1:508531660846:ios:f67ef67bff0e3a371da7bf',
+    appId: '1:508531660846:ios:980d709ca8d386e81da7bf',
     messagingSenderId: '508531660846',
     projectId: 'ithubmobile',
     storageBucket: 'ithubmobile.firebasestorage.app',
-    iosBundleId: 'com.example.ithubmobile',
+    iosBundleId: 'com.romanbokov.ithubmobile',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'ithubmobile.firebasestorage.app',
     measurementId: 'G-XWS68ZFT7F',
   );
+
 }

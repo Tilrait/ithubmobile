@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:ithubmobile/ui/screen/login/login_screen.dart';
 import 'package:ithubmobile/ui/screen/main_screen.dart';
@@ -16,6 +17,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
 
   void _onLogin(BuildContext context) {
     Navigator.push(
@@ -35,7 +37,7 @@ class _AuthScreenState extends State<AuthScreen> {
     super.dispose();
   }
 
-  void _onRegister() {
+  Future<void> _onRegister() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -60,14 +62,59 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
-    final user = UserModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      email: email,
-    );
+    setState(() => _isLoading = true);
+    try {
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      await credential.user?.updateDisplayName(name);
+      await credential.user?.reload();
 
-    Hive.box('user').put('current', user.toJson());
-    Hive.box('user').put('password', password);
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        final user = UserModel(
+          id: currentUser.uid,
+          name: currentUser.displayName ?? name,
+          email: currentUser.email ?? email,
+        );
+        await Hive.box('user').put('current', user.toJson());
+      }
+    } on FirebaseAuthException catch (e, st) {
+      debugPrint(
+        'Firebase register error: code=${e.code}, message=${e.message}, email=$email',
+      );
+      debugPrintStack(stackTrace: st);
+      String message = 'Ошибка регистрации';
+      if (e.code == 'email-already-in-use') {
+        message = 'Этот email уже зарегистрирован';
+      } else if (e.code == 'invalid-email') {
+        message = 'Некорректный email';
+      } else if (e.code == 'weak-password') {
+        message = 'Слишком простой пароль';
+      } else if (e.code == 'operation-not-allowed') {
+        message = 'В Firebase не включен вход по email/password';
+      } else if (e.message != null && e.message!.isNotEmpty) {
+        message = e.message!;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$message (${e.code})')),
+        );
+      }
+      return;
+    } catch (e, st) {
+      debugPrint('Unexpected register error: $e');
+      debugPrintStack(stackTrace: st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось зарегистрироваться')),
+        );
+      }
+      return;
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
 
     if (mounted) {
       Navigator.pushAndRemoveUntil(
@@ -116,8 +163,14 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _onRegister,
-                child: const Text('Register'),
+                onPressed: _isLoading ? null : _onRegister,
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Register'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
