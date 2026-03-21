@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "508531660846",
+    "project_id": "ithubmobile",
+    "storage_bucket": "ithubmobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508531660846:android:24026da5780c7fdc1da7bf",
+        "android_client_info": {
+          "package_name": "com.example.ithubmobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVLdadTqWcCYCPQ_JjWlQ14_SaIFi1Eqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
